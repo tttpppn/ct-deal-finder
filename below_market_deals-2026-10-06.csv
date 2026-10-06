@@ -1,0 +1,9 @@
+Address,Town,Source,List Price,Assessed Value,Market Value,Discount %,ARV,Cap Rate %,Cash-on-Cash %,Days to Cash,Market Demand,Property Type,Link,Scraped Date
+654 Maple Lane,Cheshire,zillow_foreclosure,195000,235000,235000,17.02,235000,8.68,18.38,90,,Single Family,https://www.zillow.com/example5,2026-10-06T06:24:22.255Z
+200 Second Street,Guilford,wells_fargo_reo,195000,235000,235000,17.02,235000,8.68,18.38,60,,Condo,https://www.zillow.com/bank-reo-2,2026-10-06T06:24:37.320Z
+456 Oak Avenue,Madison,zillow_foreclosure,185000,220000,220000,15.91,220000,8.56,17.81,90,,Single Family,https://www.zillow.com/example2,2026-10-06T06:24:25.267Z
+789 Elm Court,Guilford,zillow_foreclosure,215000,255000,255000,15.69,255000,8.54,17.70,90,,Condo,https://www.zillow.com/example3,2026-10-06T06:24:28.271Z
+100 First Avenue,Madison,bank_of_america_reo,215000,255000,255000,15.69,255000,8.54,17.70,60,,Single Family,https://www.zillow.com/bank-reo-1,2026-10-06T06:24:34.304Z
+123 Main Street,Cheshire,zillow_foreclosure,245000,290000,290000,15.52,290000,8.52,17.61,90,,Single Family,https://www.zillow.com/example1,2026-10-06T06:24:22.255Z
+321 Pine Road,Orange,zillow_foreclosure,275000,325000,325000,15.38,325000,8.51,17.55,90,,Single Family,https://www.zillow.com/example4,2026-10-06T06:24:31.288Z
+300 Third Boulevard,Orange,chase_reo,255000,300000,300000,15.00,300000,8.47,17.35,60,,Single Family,https://www.zillow.com/bank-reo-3,2026-10-06T06:24:40.336Z
