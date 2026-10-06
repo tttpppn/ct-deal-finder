@@ -24,10 +24,15 @@ jobs:
       - name: Run scraper
         run: npm start
 
+      - name: Copy CSV to public folder for dashboard
+        run: |
+          mkdir -p public
+          cp below_market_deals-*.csv public/data.csv || echo "No CSV file found"
+
       - name: Commit and push results
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action Bot"
-          git add below_market_deals-*.csv logs/
+          git add below_market_deals-*.csv logs/ public/data.csv
           git commit -m "Daily deal scrape: $(date +%Y-%m-%d)" || echo "No changes to commit"
           git push
