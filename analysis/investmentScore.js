@@ -1,7 +1,7 @@
 import { DEAL_CONFIG } from '../config.js';
 import { logger } from '../utils/logger.js';
 
-export function calculateDealMetrics(properties) {
+export function calculateDealMetrics(properties, rentalComps = {}) {
   return properties.map(prop => {
     const marketValue = parsePrice(prop.marketValue);
     const listPrice = parsePrice(prop.listPrice);
@@ -18,8 +18,11 @@ export function calculateDealMetrics(properties) {
     // Renovation cost estimate (12% of property value)
     const renovationCost = assessedValue * DEAL_CONFIG.renovationCostPercent;
 
-    // Estimated monthly rental income (0.6% rule: monthly rent = 0.6% of property value)
-    const monthlyRent = marketValue * DEAL_CONFIG.monthlyRentRule;
+    // Monthly rental income - use real comps if available, fallback to 0.6% rule
+    let monthlyRent = marketValue * DEAL_CONFIG.monthlyRentRule;
+    if (rentalComps[prop.town] && rentalComps[prop.town].averageMonthlyRent > 0) {
+      monthlyRent = rentalComps[prop.town].averageMonthlyRent;
+    }
     const annualRent = monthlyRent * 12;
 
     // Cap rate = (annual rent / purchase price) * 100

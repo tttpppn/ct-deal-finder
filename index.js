@@ -1,5 +1,6 @@
 import { scrapeAllTowns } from './scrapers/judicial.js';
 import { scrapeWithFallback } from './scrapers/bankReo.js';
+import { getRentalComps } from './scrapers/rentalComps.js';
 import { consolidateProperties } from './utils/dedupe.js';
 import { calculateDealMetrics, rankDeals } from './analysis/investmentScore.js';
 import { exportToCSV } from './utils/csvExporter.js';
@@ -26,9 +27,14 @@ async function main() {
     const consolidatedProperties = consolidateProperties(judicialProperties, bankProperties);
     logger.info(`✓ Consolidated to ${consolidatedProperties.length} unique properties`);
 
+    // Phase 3b: Get real rental comps
+    logger.info('\n🏘️ Step 3b: Fetching real rental comps...');
+    const rentalComps = await getRentalComps();
+    logger.info(`✓ Got rental data for ${Object.keys(rentalComps).length} towns`);
+
     // Phase 4: Calculate investment metrics
-    logger.info('\n💰 Step 4: Analyzing investment metrics...');
-    const analyzedProperties = calculateDealMetrics(consolidatedProperties);
+    logger.info('\n💰 Step 4: Analyzing investment metrics (with real rental data)...');
+    const analyzedProperties = calculateDealMetrics(consolidatedProperties, rentalComps);
     logger.info(`✓ Calculated ARV, cap rates, cash-on-cash returns`);
 
     // Phase 5: Filter and rank deals
