@@ -33,7 +33,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action Bot"
-          git add below_market_deals-*.csv docs/data.csv
+          git add below_market_deals-*.csv listings_10pct_below_market-*.csv docs/data.csv
           git commit -m "Daily deal scrape: $(date +%Y-%m-%d)" || echo "No changes to commit"
           git push https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
         env:
