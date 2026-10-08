@@ -40,14 +40,14 @@
   <div class="container">
     <header>
       <h1>🏠 CT Real Estate Deal Finder</h1>
-      <p class="subtitle">Judicial Foreclosures + Bank REO Listings</p>
+      <p class="subtitle">Properties at least 10% below market value (Foreclosures, Bank REO, MLS)</p>
       <p class="last-updated">Last Updated: <span id="lastUpdated">Loading...</span></p>
     </header>
 
     <div class="stats">
       <div class="stat-card">
         <div class="stat-number" id="totalDeals">0</div>
-        <div class="stat-label">Total Deals</div>
+        <div class="stat-label">Total Listings (10%+ below market)</div>
       </div>
       <div class="stat-card">
         <div class="stat-number" id="avgDiscount">0%</div>
@@ -142,7 +142,7 @@
         row.innerHTML = `
           <td><strong>${deal['Address']}</strong></td>
           <td>${deal['Town']}</td>
-          <td>${deal['Source'].includes('judicial') ? 'Judicial' : 'Bank REO'}</td>
+          <td>${deal['Source'].includes('judicial') ? 'Judicial' : deal['Source'].includes('bank') ? 'Bank REO' : deal['Source'].includes('mls') ? 'MLS' : deal['Source']}</td>
           <td>$${parseInt(deal['List Price'].replace(/\D/g,'')).toLocaleString()}</td>
           <td><span class="deal-rating ${ratingClass}">${discount.toFixed(2)}%</span></td>
           <td>${parseFloat(deal['Cap Rate %']).toFixed(2)}%</td>

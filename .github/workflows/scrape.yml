@@ -27,7 +27,7 @@ jobs:
       - name: Copy CSV to docs folder for dashboard
         run: |
           mkdir -p docs
-          cp below_market_deals-*.csv docs/data.csv || echo "No CSV file found"
+          cp listings_10pct_below_market-*.csv docs/data.csv || echo "No CSV file found"
 
       - name: Commit and push results
         run: |
