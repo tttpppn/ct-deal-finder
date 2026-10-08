@@ -1,5 +1,6 @@
 import { scrapeAllTowns } from './scrapers/judicial.js';
 import { scrapeWithFallback } from './scrapers/bankReo.js';
+import { scrapeMLSListings } from './scrapers/mls.js';
 import { getRentalComps } from './scrapers/rentalComps.js';
 import { consolidateProperties } from './utils/dedupe.js';
 import { calculateDealMetrics, rankDeals } from './analysis/investmentScore.js';
@@ -22,9 +23,14 @@ async function main() {
     const bankProperties = await scrapeWithFallback();
     logger.info(`✓ Scraped ${bankProperties.length} bank REO listings`);
 
+    // Phase 1: Scrape MLS
+    logger.info('\n🏠 Step 2b: Scraping MLS listings...');
+    const mlsProperties = await scrapeMLSListings();
+    logger.info(`✓ Scraped ${mlsProperties.length} MLS listings`);
+
     // Phase 1: Consolidate
     logger.info('\n🔄 Step 3: Consolidating and deduplicating...');
-    const consolidatedProperties = consolidateProperties(judicialProperties, bankProperties);
+    const consolidatedProperties = consolidateProperties(judicialProperties, bankProperties, mlsProperties);
     logger.info(`✓ Consolidated to ${consolidatedProperties.length} unique properties`);
 
     // Phase 3b: Get real rental comps
@@ -43,10 +49,17 @@ async function main() {
     logger.info(`✓ Found ${rankedDeals.length} deals with >15% discount`);
 
     // Export to CSV with timestamp
-    logger.info('\n📊 Step 6: Exporting to spreadsheet...');
+    logger.info('\n📊 Step 6: Exporting to spreadsheets...');
     const timestamp = new Date().toISOString().split('T')[0];
     const csvFilename = `below_market_deals-${timestamp}.csv`;
     exportToCSV(rankedDeals, csvFilename);
+
+    // Export listings at least 10% below market
+    const belowMarketDeals = analyzedProperties.filter(p => p.isBelowMarket);
+    if (belowMarketDeals.length > 0) {
+      const belowMarketFilename = `listings_10pct_below_market-${timestamp}.csv`;
+      exportToCSV(belowMarketDeals, belowMarketFilename);
+    }
 
     // Summary
     logger.info('\n' + '═'.repeat(60));
@@ -54,7 +67,9 @@ async function main() {
     logger.info('═'.repeat(60));
     logger.info(`Judicial foreclosures found: ${judicialProperties.length}`);
     logger.info(`Bank REO listings found: ${bankProperties.length}`);
+    logger.info(`MLS listings found: ${mlsProperties.length}`);
     logger.info(`Total unique properties: ${consolidatedProperties.length}`);
+    logger.info(`Listings at least 10% below market: ${belowMarketDeals.length}`);
     logger.info(`Deals found (>15% discount): ${rankedDeals.length}`);
 
     if (rankedDeals.length > 0) {

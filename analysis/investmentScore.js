@@ -47,6 +47,9 @@ export function calculateDealMetrics(properties, rentalComps = {}) {
     // Determine if it's a deal (>15% discount)
     const isDeal = parseFloat(discountPercent) >= DEAL_CONFIG.discountThreshold * 100;
 
+    // Check if listing is at least 10% below market value
+    const isBelowMarket = parseFloat(discountPercent) >= 10;
+
     return {
       ...prop,
       marketValue: marketValue,
@@ -62,6 +65,7 @@ export function calculateDealMetrics(properties, rentalComps = {}) {
       cashOnCash: cashOnCash,
       dealScore: dealScore,
       isDeal: isDeal,
+      isBelowMarket: isBelowMarket,
     };
   });
 }

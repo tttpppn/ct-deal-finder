@@ -38,10 +38,10 @@ export function deduplicateProperties(properties) {
   return Array.from(seen.values());
 }
 
-export function consolidateProperties(judicialProps, bankProps) {
-  logger.info(`Consolidating ${judicialProps.length} judicial + ${bankProps.length} bank REO properties...`);
+export function consolidateProperties(judicialProps, bankProps, mlsProps = []) {
+  logger.info(`Consolidating ${judicialProps.length} judicial + ${bankProps.length} bank REO + ${mlsProps.length} MLS properties...`);
 
-  const allProperties = [...judicialProps, ...bankProps];
+  const allProperties = [...judicialProps, ...bankProps, ...mlsProps];
   const deduped = deduplicateProperties(allProperties);
 
   logger.info(`Consolidated to ${deduped.length} unique properties after deduplication`);
