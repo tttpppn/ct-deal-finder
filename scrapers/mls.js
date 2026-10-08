@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { REQUEST_CONFIG } from '../config.js';
+import { REQUEST_CONFIG, TOWNS } from '../config.js';
 import { logger } from '../utils/logger.js';
 import { createAddressKey } from '../utils/addressNormalize.js';
 
@@ -10,7 +10,7 @@ function getMockMLSData() {
     {
       mls_id: 'MLS001',
       address: '150 Oak Street',
-      town: 'New Haven',
+      town: 'Cheshire',
       listPrice: '$180,000',
       marketValue: '$205,000',
       propertyType: 'Single Family',
@@ -24,7 +24,7 @@ function getMockMLSData() {
     {
       mls_id: 'MLS002',
       address: '250 Elm Avenue',
-      town: 'Wallingford',
+      town: 'Madison',
       listPrice: '$225,000',
       marketValue: '$260,000',
       propertyType: 'Single Family',
@@ -38,7 +38,7 @@ function getMockMLSData() {
     {
       mls_id: 'MLS003',
       address: '350 Maple Drive',
-      town: 'Durham',
+      town: 'Guilford',
       listPrice: '$165,000',
       marketValue: '$195,000',
       propertyType: 'Condo',
@@ -52,7 +52,7 @@ function getMockMLSData() {
     {
       mls_id: 'MLS004',
       address: '450 Pine Road',
-      town: 'Berlin',
+      town: 'Orange',
       listPrice: '$210,000',
       marketValue: '$250,000',
       propertyType: 'Single Family',
@@ -73,7 +73,10 @@ async function fetchMLSListings() {
     // Simulate API fetch (in production, use real MLS API like ShowingTime, CoreLogic, etc.)
     const allData = getMockMLSData();
 
-    const properties = allData.map(prop => ({
+    // Filter to only include defined towns
+    const filteredData = allData.filter(prop => TOWNS.includes(prop.town));
+
+    const properties = filteredData.map(prop => ({
       source: 'mls_listing',
       mls_id: prop.mls_id,
       address: prop.address,
