@@ -3,75 +3,53 @@ import { BANK_REO_TIERS, REQUEST_CONFIG } from '../config.js';
 import { logger } from '../utils/logger.js';
 import { createAddressKey } from '../utils/addressNormalize.js';
 
-// Mock bank REO data (simulating real bank listings)
-// In production, this would call actual bank APIs or Zillow bank-owned filter
-function getMockBankREOData() {
-  return [
-    {
-      bank: 'Bank of America',
-      address: '100 First Avenue',
-      town: 'Madison',
-      listPrice: '$215,000',
-      marketValue: '$255,000',
-      propertyType: 'Single Family',
-      link: 'https://www.zillow.com/bank-reo-1',
-      status: 'active',
-    },
-    {
-      bank: 'Wells Fargo',
-      address: '200 Second Street',
-      town: 'Guilford',
-      listPrice: '$195,000',
-      marketValue: '$235,000',
-      propertyType: 'Condo',
-      link: 'https://www.zillow.com/bank-reo-2',
-      status: 'active',
-    },
-    {
-      bank: 'Chase',
-      address: '300 Third Boulevard',
-      town: 'Orange',
-      listPrice: '$255,000',
-      marketValue: '$300,000',
-      propertyType: 'Single Family',
-      link: 'https://www.zillow.com/bank-reo-3',
-      status: 'inactive',
-    },
-    {
-      bank: 'Zillow (Tier 3)',
-      address: '400 Fourth Lane',
-      town: 'Cheshire',
-      listPrice: '$175,000',
-      marketValue: '$210,000',
-      propertyType: 'Single Family',
-      link: 'https://www.zillow.com/bank-reo-4',
-      status: 'active',
-    },
-  ];
+// Fetch real bank-owned (REO) properties from Redfin API
+async function fetchRealBankREOData(town) {
+  try {
+    const url = `https://www.redfin.com/api/gis`;
+    const params = {
+      al: 'CT',
+      q: town,
+      ch: '11011', // Bank-owned filter
+      num_homes: 50,
+      v: 8,
+    };
+
+    const response = await axios.get(url, {
+      params,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+      },
+      timeout: REQUEST_CONFIG.timeout,
+    });
+
+    if (response.data?.payload?.homes) {
+      return response.data.payload.homes.map(home => ({
+        bank: 'Bank-Owned',
+        address: home.streetAddress || '',
+        town: town,
+        listPrice: `$${home.price || 0}`,
+        marketValue: `$${home.listPrice || home.price || 0}`,
+        propertyType: home.propertyType || 'Single Family',
+        link: `https://www.redfin.com${home.url}` || '',
+        status: home.statusText === 'For Sale' ? 'active' : 'inactive',
+      }));
+    }
+  } catch (error) {
+    logger.debug(`Bank REO fetch failed for ${town}: ${error.message}`);
+  }
+  return [];
 }
 
-async function fetchBankREO(bank, tier) {
+async function fetchBankREO(town) {
   try {
-    logger.info(`Fetching REO listings from ${bank.name} (Tier ${tier})...`);
+    logger.info(`Fetching bank-owned (REO) listings for ${town}...`);
 
-    // Simulate API fetch (in production, use real bank API or Zillow filter)
-    const allData = getMockBankREOData();
+    const bankREOData = await fetchRealBankREOData(town);
 
-    // Filter for this bank and active status only (case-insensitive comparison)
-    const bankProperties = allData.filter(prop =>
-      prop.bank && prop.bank.toLowerCase() === bank.name.toLowerCase() &&
-      prop.status === 'active'
-    );
-
-    // Log warning if no properties found for this bank
-    if (bankProperties.length === 0) {
-      const availableBanks = [...new Set(allData.map(p => p.bank))].join(', ');
-      logger.warn(`⚠️  No active properties found for "${bank.name}". Available banks: ${availableBanks}`);
-    }
-
-    const properties = bankProperties.map(prop => ({
-      source: `${bank.name.toLowerCase().replace(/ /g, '_')}_reo`,
-      bank: bank.name,
+    const properties = bankREOData.map(prop => ({
+      source: 'bank_reo',
+      bank: prop.bank,
       address: prop.address,
       town: prop.town,
       addressKey: createAddressKey(prop.address, prop.town),
@@ -79,53 +57,33 @@ async function fetchBankREO(bank, tier) {
       marketValue: prop.marketValue,
       propertyType: prop.propertyType,
       link: prop.link,
-      daysToCash: 60, // Bank REO typically faster
+      daysToCash: 60, // Bank REO typically faster closing
       status: prop.status,
       scrapedAt: new Date().toISOString(),
     }));
 
     if (properties.length === 0) {
-      logger.info(`   ⚠️  No REO listings found from ${bank.name}`);
+      logger.info(`   ⚠️  No bank-owned listings found in ${town}`);
     } else {
-      logger.info(`   ✓ Found ${properties.length} REO property(ies) from ${bank.name}`);
+      logger.info(`   ✓ Found ${properties.length} bank-owned property(ies) in ${town}`);
     }
     return properties;
   } catch (error) {
-    logger.warn(`Failed to fetch from ${bank.name}`, { error: error.message });
+    logger.warn(`Failed to fetch bank REO for ${town}`, { error: error.message });
     return [];
   }
 }
 
 async function scrapeWithFallback() {
-  logger.info('Starting Bank REO scrape with Tier 1 → 2 → 3 fallback...');
+  logger.info('Starting Bank REO scrape across all towns...');
 
   const allProperties = [];
+  const { TOWNS } = await import('../config.js');
 
-  // Try Tier 1 banks first
-  for (const bank of BANK_REO_TIERS.tier1) {
-    const properties = await fetchBankREO(bank, 1);
+  for (const town of TOWNS) {
+    const properties = await fetchBankREO(town);
     allProperties.push(...properties);
     await new Promise(resolve => setTimeout(resolve, REQUEST_CONFIG.requestDelay));
-  }
-
-  // Fall back to Tier 2 if needed
-  if (allProperties.length < 10) {
-    logger.info('Tier 1 returned fewer than 10 results, falling back to Tier 2...');
-    for (const bank of BANK_REO_TIERS.tier2) {
-      const properties = await fetchBankREO(bank, 2);
-      allProperties.push(...properties);
-      await new Promise(resolve => setTimeout(resolve, REQUEST_CONFIG.requestDelay));
-    }
-  }
-
-  // Fall back to Tier 3 (Zillow, Redfin) if needed
-  if (allProperties.length < 10) {
-    logger.info('Tier 1+2 returned fewer than 10 results, falling back to Tier 3...');
-    for (const bank of BANK_REO_TIERS.tier3) {
-      const properties = await fetchBankREO(bank, 3);
-      allProperties.push(...properties);
-      await new Promise(resolve => setTimeout(resolve, REQUEST_CONFIG.requestDelay));
-    }
   }
 
   logger.info(`Bank REO scrape complete. Total properties found: ${allProperties.length}`);

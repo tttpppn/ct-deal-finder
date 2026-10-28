@@ -1,0 +1,5 @@
+Address,Town,Source,Status,List Price,Assessed Value,Market Value,Discount %,ARV,Cap Rate %,Cash-on-Cash %,Days to Cash,Market Demand,Property Type,Link,Scraped Date
+123 Main Street,Cheshire,zillow_foreclosure,active,245000,290000,290000,15.52,290000,9.31,21.53,90,,Single Family,https://www.zillow.com/example1,2026-10-28T05:40:04.612Z
+654 Maple Lane,Cheshire,zillow_foreclosure,active,195000,235000,235000,17.02,235000,11.69,33.46,90,,Single Family,https://www.zillow.com/example5,2026-10-28T05:40:04.612Z
+456 Oak Avenue,Madison,zillow_foreclosure,active,185000,220000,220000,15.91,220000,17.50,62.50,90,,Single Family,https://www.zillow.com/example2,2026-10-28T05:40:07.745Z
+789 Elm Court,Guilford,zillow_foreclosure,active,215000,255000,255000,15.69,255000,13.40,41.98,90,,Condo,https://www.zillow.com/example3,2026-10-28T05:40:10.866Z

@@ -31,9 +31,11 @@ async function fetchFromMLSPublicSource(town) {
 
     // Parse Redfin response - check actual listing status
     if (response.data?.payload?.homes) {
+      const totalHomes = response.data.payload.homes.length;
       const homes = response.data.payload.homes.filter(h => h.statusText === 'For Sale');
+
       if (homes.length > 0) {
-        logger.info(`   ✓ Found ${homes.length} "For Sale" listings on Redfin for ${town}`);
+        logger.info(`   ✓ Found ${homes.length} "For Sale" listings on Redfin for ${town} (${totalHomes} total homes in response)`);
         return homes.map(home => ({
           address: home.streetAddress || '',
           town: town,
@@ -45,10 +47,10 @@ async function fetchFromMLSPublicSource(town) {
           daysOnMarket: home.daysOnZillow || 0,
         }));
       } else {
-        logger.debug(`No "For Sale" listings found in Redfin response for ${town}`);
+        logger.info(`   ⚠️  Redfin returned ${totalHomes} homes for ${town} but none matched "For Sale" status`);
       }
     } else {
-      logger.debug(`Unexpected Redfin response structure for ${town}: missing payload.homes`);
+      logger.warn(`Unexpected Redfin response structure for ${town}: missing payload.homes - falling back to mock data`);
     }
 
     return null;
