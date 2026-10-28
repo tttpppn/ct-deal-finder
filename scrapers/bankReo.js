@@ -15,6 +15,7 @@ function getMockBankREOData() {
       marketValue: '$255,000',
       propertyType: 'Single Family',
       link: 'https://www.zillow.com/bank-reo-1',
+      status: 'active',
     },
     {
       bank: 'Wells Fargo',
@@ -24,6 +25,7 @@ function getMockBankREOData() {
       marketValue: '$235,000',
       propertyType: 'Condo',
       link: 'https://www.zillow.com/bank-reo-2',
+      status: 'active',
     },
     {
       bank: 'Chase',
@@ -33,6 +35,7 @@ function getMockBankREOData() {
       marketValue: '$300,000',
       propertyType: 'Single Family',
       link: 'https://www.zillow.com/bank-reo-3',
+      status: 'inactive',
     },
     {
       bank: 'Zillow (Tier 3)',
@@ -42,6 +45,7 @@ function getMockBankREOData() {
       marketValue: '$210,000',
       propertyType: 'Single Family',
       link: 'https://www.zillow.com/bank-reo-4',
+      status: 'active',
     },
   ];
 }
@@ -53,8 +57,17 @@ async function fetchBankREO(bank, tier) {
     // Simulate API fetch (in production, use real bank API or Zillow filter)
     const allData = getMockBankREOData();
 
-    // Filter for this bank
-    const bankProperties = allData.filter(prop => prop.bank === bank.name);
+    // Filter for this bank and active status only (case-insensitive comparison)
+    const bankProperties = allData.filter(prop =>
+      prop.bank && prop.bank.toLowerCase() === bank.name.toLowerCase() &&
+      prop.status === 'active'
+    );
+
+    // Log warning if no properties found for this bank
+    if (bankProperties.length === 0) {
+      const availableBanks = [...new Set(allData.map(p => p.bank))].join(', ');
+      logger.warn(`⚠️  No active properties found for "${bank.name}". Available banks: ${availableBanks}`);
+    }
 
     const properties = bankProperties.map(prop => ({
       source: `${bank.name.toLowerCase().replace(/ /g, '_')}_reo`,
@@ -67,6 +80,7 @@ async function fetchBankREO(bank, tier) {
       propertyType: prop.propertyType,
       link: prop.link,
       daysToCash: 60, // Bank REO typically faster
+      status: prop.status,
       scrapedAt: new Date().toISOString(),
     }));
 

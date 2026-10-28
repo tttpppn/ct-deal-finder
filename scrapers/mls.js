@@ -20,6 +20,7 @@ function getMockMLSData() {
       sqft: 1200,
       daysOnMarket: 45,
       link: 'https://www.zillow.com/mls-001',
+      status: 'active',
     },
     {
       mls_id: 'MLS002',
@@ -34,6 +35,7 @@ function getMockMLSData() {
       sqft: 1800,
       daysOnMarket: 60,
       link: 'https://www.zillow.com/mls-002',
+      status: 'active',
     },
     {
       mls_id: 'MLS003',
@@ -48,6 +50,7 @@ function getMockMLSData() {
       sqft: 950,
       daysOnMarket: 75,
       link: 'https://www.zillow.com/mls-003',
+      status: 'inactive',
     },
     {
       mls_id: 'MLS004',
@@ -62,6 +65,7 @@ function getMockMLSData() {
       sqft: 1400,
       daysOnMarket: 90,
       link: 'https://www.zillow.com/mls-004',
+      status: 'active',
     },
   ];
 }
@@ -73,8 +77,8 @@ async function fetchMLSListings() {
     // Simulate API fetch (in production, use real MLS API like ShowingTime, CoreLogic, etc.)
     const allData = getMockMLSData();
 
-    // Filter to only include defined towns
-    const filteredData = allData.filter(prop => TOWNS.includes(prop.town));
+    // Filter to only include defined towns and active status
+    const filteredData = allData.filter(prop => TOWNS.includes(prop.town) && prop.status === 'active');
 
     const properties = filteredData.map(prop => ({
       source: 'mls_listing',
@@ -92,6 +96,7 @@ async function fetchMLSListings() {
       daysOnMarket: prop.daysOnMarket,
       link: prop.link,
       daysToCash: 30, // MLS typically quick closing
+      status: prop.status,
       scrapedAt: new Date().toISOString(),
     }));
 

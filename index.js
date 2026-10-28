@@ -1,3 +1,4 @@
+import fs from 'fs';
 import { scrapeAllTowns } from './scrapers/judicial.js';
 import { scrapeWithFallback } from './scrapers/bankReo.js';
 import { scrapeMLSListings } from './scrapers/mls.js';
@@ -51,14 +52,35 @@ async function main() {
     // Export to CSV with timestamp
     logger.info('\n📊 Step 6: Exporting to spreadsheets...');
     const timestamp = new Date().toISOString().split('T')[0];
-    const csvFilename = `below_market_deals-${timestamp}.csv`;
+
+    // Ensure deals folder exists
+    if (!fs.existsSync('deals')) {
+      fs.mkdirSync('deals', { recursive: true });
+    }
+
+    const csvFilename = `deals/below_market_deals-${timestamp}.csv`;
     exportToCSV(rankedDeals, csvFilename);
 
     // Export listings at least 10% below market
     const belowMarketDeals = analyzedProperties.filter(p => p.isBelowMarket);
     if (belowMarketDeals.length > 0) {
-      const belowMarketFilename = `listings_10pct_below_market-${timestamp}.csv`;
+      const belowMarketFilename = `deals/listings_10pct_below_market-${timestamp}.csv`;
       exportToCSV(belowMarketDeals, belowMarketFilename);
+    }
+
+    // Always update dashboard with active listings (prevents stale data when no below-market deals)
+    const activeListings = analyzedProperties.filter(p => p.status === 'active');
+    if (activeListings.length > 0) {
+      const dashboardFilename = `deals/dashboard_active-${timestamp}.csv`;
+      exportToCSV(activeListings, dashboardFilename);
+      try {
+        fs.copyFileSync(dashboardFilename, 'docs/data.csv');
+        logger.info(`✓ Updated docs/data.csv with ${activeListings.length} active listings`);
+      } catch (error) {
+        logger.warn('Failed to update docs/data.csv', { error: error.message });
+      }
+    } else {
+      logger.warn('⚠️  No active listings found to update dashboard');
     }
 
     // Summary
@@ -80,7 +102,7 @@ async function main() {
     }
 
     logger.info('═'.repeat(60));
-    logger.info('✅ Pipeline complete! Check below_market_deals.csv');
+    logger.info('✅ Pipeline complete! Check deals/below_market_deals.csv');
 
     return rankedDeals;
   } catch (error) {

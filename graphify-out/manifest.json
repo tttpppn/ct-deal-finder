@@ -1,0 +1,80 @@
+{
+  ".claude/settings.local.json": {
+    "mtime": 1791266105.5578964,
+    "seen": 1791424225.4466624,
+    "ast_hash": "2ab4cff4035bea4e98bf578a9332ff6d",
+    "semantic_hash": "2ab4cff4035bea4e98bf578a9332ff6d"
+  },
+  "analysis/investmentScore.js": {
+    "mtime": 1791271681.8753507,
+    "seen": 1791424225.4466667,
+    "ast_hash": "528ab4e7119eb532543da735044c98cb",
+    "semantic_hash": "528ab4e7119eb532543da735044c98cb"
+  },
+  "config.js": {
+    "mtime": 1791266185.353116,
+    "seen": 1791424225.4466684,
+    "ast_hash": "ebe201726fb57242c09dfc8d3c7a7999",
+    "semantic_hash": "ebe201726fb57242c09dfc8d3c7a7999"
+  },
+  "index.js": {
+    "mtime": 1791271681.8763509,
+    "seen": 1791424225.446669,
+    "ast_hash": "7a45918ec6fc8f9c50cac5617ffc8909",
+    "semantic_hash": "7a45918ec6fc8f9c50cac5617ffc8909"
+  },
+  "package.json": {
+    "mtime": 1791266069.273126,
+    "seen": 1791424225.4466698,
+    "ast_hash": "a5c205dbc4739fe20f499ea8f6f29915",
+    "semantic_hash": "a5c205dbc4739fe20f499ea8f6f29915"
+  },
+  "scrapers/bankReo.js": {
+    "mtime": 1791267958.6662185,
+    "seen": 1791424225.4466705,
+    "ast_hash": "cf94245686f331fee431105a27fc0df1",
+    "semantic_hash": "cf94245686f331fee431105a27fc0df1"
+  },
+  "scrapers/judicial.js": {
+    "mtime": 1791267969.886309,
+    "seen": 1791424225.4466712,
+    "ast_hash": "ee30c42b9d3c107a5a2f7278de90ed20",
+    "semantic_hash": "ee30c42b9d3c107a5a2f7278de90ed20"
+  },
+  "scrapers/rentalComps.js": {
+    "mtime": 1791273072.023935,
+    "seen": 1791424225.446672,
+    "ast_hash": "2e26a18cd75e4ed53950aad9c412c096",
+    "semantic_hash": "2e26a18cd75e4ed53950aad9c412c096"
+  },
+  "utils/addressNormalize.js": {
+    "mtime": 1791266215.7066686,
+    "seen": 1791424225.4466727,
+    "ast_hash": "7dfb5908ce596422456b5b7ca56b1221",
+    "semantic_hash": "7dfb5908ce596422456b5b7ca56b1221"
+  },
+  "utils/csvExporter.js": {
+    "mtime": 1791266976.206004,
+    "seen": 1791424225.4466732,
+    "ast_hash": "3fb6b96dacb9408bdc2711e61605ec5a",
+    "semantic_hash": "3fb6b96dacb9408bdc2711e61605ec5a"
+  },
+  "utils/dedupe.js": {
+    "mtime": 1791266269.6516504,
+    "seen": 1791424225.4466739,
+    "ast_hash": "6360f730f3e4f768230e96832e61fdf6",
+    "semantic_hash": "6360f730f3e4f768230e96832e61fdf6"
+  },
+  "utils/logger.js": {
+    "mtime": 1791266199.5987277,
+    "seen": 1791424225.4466746,
+    "ast_hash": "6cc46d2f283649f13ca7be951937639f",
+    "semantic_hash": "6cc46d2f283649f13ca7be951937639f"
+  },
+  "utils/retry.js": {
+    "mtime": 1791266281.4442945,
+    "seen": 1791424225.4466753,
+    "ast_hash": "8417463d2632c6301b9378f3b53bd35c",
+    "semantic_hash": "8417463d2632c6301b9378f3b53bd35c"
+  }
+}

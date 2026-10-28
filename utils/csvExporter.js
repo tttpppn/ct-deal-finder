@@ -9,11 +9,18 @@ export function exportToCSV(properties, filename = 'below_market_deals.csv') {
       return;
     }
 
+    // Validate that all properties have status field (required for filtering active listings)
+    const missingStatus = properties.filter(p => !p.status);
+    if (missingStatus.length > 0) {
+      logger.warn(`⚠️  ${missingStatus.length} of ${properties.length} properties missing 'status' field - will default to 'unknown'`);
+    }
+
     // CSV header
     const headers = [
       'Address',
       'Town',
       'Source',
+      'Status',
       'List Price',
       'Assessed Value',
       'Market Value',
@@ -33,6 +40,7 @@ export function exportToCSV(properties, filename = 'below_market_deals.csv') {
       prop.address || '',
       prop.town || '',
       (prop.sources || [prop.source]).join(';') || '',
+      prop.status || 'unknown',
       prop.listPrice || prop.openingBid || '',
       prop.assessedValue || '',
       prop.marketValue || '',

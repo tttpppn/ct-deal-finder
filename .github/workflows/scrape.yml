@@ -1,9 +1,9 @@
-name: Daily Deal Scraper
+name: Weekly Deal Scraper
 
 on:
   schedule:
-    # Run every day at 9 AM UTC (4 AM EST)
-    - cron: '0 9 * * *'
+    # Run every Sunday at 9 AM UTC (4 AM EST)
+    - cron: '0 9 * * 0'
   workflow_dispatch:  # Manual trigger button in GitHub UI
 
 jobs:
@@ -27,14 +27,14 @@ jobs:
       - name: Copy CSV to docs folder for dashboard
         run: |
           mkdir -p docs
-          cp listings_10pct_below_market-*.csv docs/data.csv || echo "No CSV file found"
+          cp deals/listings_10pct_below_market-*.csv docs/data.csv || echo "No CSV file found"
 
       - name: Commit and push results
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action Bot"
-          git add below_market_deals-*.csv listings_10pct_below_market-*.csv docs/data.csv
-          git commit -m "Daily deal scrape: $(date +%Y-%m-%d)" || echo "No changes to commit"
+          git add deals/*.csv docs/data.csv
+          git commit -m "Weekly deal scrape: $(date +%Y-%m-%d)" || echo "No changes to commit"
           git push https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

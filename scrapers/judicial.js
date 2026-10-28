@@ -3,14 +3,64 @@ import { TOWNS, REQUEST_CONFIG } from '../config.js';
 import { logger } from '../utils/logger.js';
 import { createAddressKey } from '../utils/addressNormalize.js';
 
-// Mock foreclosure data for CT towns (simulating Zillow/real estate API data)
-//
-// REAL DATA SOURCES (to implement):
-// 1. Zillow Foreclosure Filter: https://www.zillow.com/homes/for_sale/foreclosures/
-// 2. CT Judicial System: https://sso.eservices.jud.ct.gov/foreclosures/
-// 3. Redfin Bank-Owned: https://www.redfin.com/homes/for_sale/foreclosures/
-//
-// In production, replace this mock data with actual API calls to these sources
+// Fetch from MLS public data source
+// To use real MLS data, integrate with:
+// 1. Zillow API (https://www.zillow.com/webservice/GetSearchResults.htm) - free registration
+// 2. Redfin public API - limited but no auth required
+// 3. Your local CT MLS board's RETS feed - requires MLS membership
+async function fetchFromMLSPublicSource(town) {
+  try {
+    logger.info(`Fetching real foreclosure data from Redfin for ${town}...`);
+
+    const url = `https://www.redfin.com/api/gis`;
+    const params = {
+      al: 'CT',
+      q: town,
+      ch: '11011',
+      num_homes: 50,
+      v: 8,
+    };
+
+    const response = await axios.get(url, {
+      params,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+      },
+      timeout: REQUEST_CONFIG.timeout,
+    });
+
+    // Parse Redfin response - check actual listing status
+    if (response.data?.payload?.homes) {
+      const homes = response.data.payload.homes.filter(h => h.statusText === 'For Sale');
+      if (homes.length > 0) {
+        logger.info(`   ✓ Found ${homes.length} "For Sale" listings on Redfin for ${town}`);
+        return homes.map(home => ({
+          address: home.streetAddress || '',
+          town: town,
+          listPrice: `$${home.price || 0}`,
+          marketValue: `$${home.listPrice || home.price || 0}`,
+          status: 'active',
+          propertyType: home.propertyType || 'Single Family',
+          link: `https://www.redfin.com${home.url}` || '',
+          daysOnMarket: home.daysOnZillow || 0,
+        }));
+      } else {
+        logger.debug(`No "For Sale" listings found in Redfin response for ${town}`);
+      }
+    } else {
+      logger.debug(`Unexpected Redfin response structure for ${town}: missing payload.homes`);
+    }
+
+    return null;
+  } catch (error) {
+    logger.warn(`Redfin fetch failed for ${town}:`, { error: error.message });
+    return null;
+  }
+}
+
+// Mock foreclosure data for CT towns (fallback when API fails)
+// In production with real MLS: status comes directly from API response
+// MLS Status values: active, pending_sale, sold, off_market, expired
 function getMockForeclosureData() {
   return [
     {
@@ -21,6 +71,7 @@ function getMockForeclosureData() {
       propertyType: 'Single Family',
       link: 'https://www.zillow.com/example1',
       daysOnMarket: 45,
+      status: 'active',
     },
     {
       address: '456 Oak Avenue',
@@ -30,6 +81,7 @@ function getMockForeclosureData() {
       propertyType: 'Single Family',
       link: 'https://www.zillow.com/example2',
       daysOnMarket: 60,
+      status: 'active',
     },
     {
       address: '789 Elm Court',
@@ -39,6 +91,7 @@ function getMockForeclosureData() {
       propertyType: 'Condo',
       link: 'https://www.zillow.com/example3',
       daysOnMarket: 35,
+      status: 'active',
     },
     {
       address: '321 Pine Road',
@@ -48,6 +101,7 @@ function getMockForeclosureData() {
       propertyType: 'Single Family',
       link: 'https://www.zillow.com/example4',
       daysOnMarket: 50,
+      status: 'inactive',
     },
     {
       address: '654 Maple Lane',
@@ -57,6 +111,7 @@ function getMockForeclosureData() {
       propertyType: 'Single Family',
       link: 'https://www.zillow.com/example5',
       daysOnMarket: 72,
+      status: 'active',
     },
   ];
 }
@@ -65,11 +120,17 @@ async function fetchForeclosureList(town) {
   try {
     logger.info(`Fetching foreclosure data for ${town}...`);
 
-    // Get mock data (replace with actual API call in production)
-    const allData = getMockForeclosureData();
+    // Try real Redfin API first
+    let townProperties = await fetchFromMLSPublicSource(town);
 
-    // Filter by town
-    const townProperties = allData.filter(prop => prop.town === town);
+    // Fallback to mock data if API fails
+    if (!townProperties || townProperties.length === 0) {
+      const allData = getMockForeclosureData();
+      townProperties = allData.filter(prop => prop.town === town && prop.status === 'active');
+    } else {
+      // Real API already returns only active listings
+      townProperties = townProperties.filter(prop => prop.status === 'active');
+    }
 
     const properties = townProperties.map(prop => ({
       source: 'zillow_foreclosure',
@@ -82,6 +143,7 @@ async function fetchForeclosureList(town) {
       link: prop.link,
       daysOnMarket: prop.daysOnMarket,
       daysToCash: 90,
+      status: prop.status,
       scrapedAt: new Date().toISOString(),
     }));
 

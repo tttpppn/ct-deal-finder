@@ -1,0 +1,228 @@
+{
+  "communities": {
+    "0": [
+      "analysis_investmentscore",
+      "analysis_investmentscore_calculatedealmetrics",
+      "analysis_investmentscore_parseprice",
+      "analysis_investmentscore_rankdeals",
+      "config_deal_config",
+      "index",
+      "index_main",
+      "scrapers_rentalcomps_getrentalcomps",
+      "utils_csvexporter_escapecsv",
+      "utils_csvexporter_exporttocsv",
+      "utils_dedupe",
+      "utils_dedupe_consolidateproperties",
+      "utils_dedupe_deduplicateproperties"
+    ],
+    "1": [
+      "ref_axios",
+      "scrapers_bankreo",
+      "scrapers_bankreo_fetchbankreo",
+      "scrapers_bankreo_getmockbankreodata",
+      "scrapers_bankreo_scrapewithfallback",
+      "scrapers_judicial",
+      "scrapers_judicial_fetchforeclosurelist",
+      "scrapers_judicial_getmockforeclosuredata",
+      "scrapers_judicial_scrapealltowns",
+      "utils_addressnormalize",
+      "utils_addressnormalize_compareaddresses",
+      "utils_addressnormalize_createaddresskey",
+      "utils_addressnormalize_normalizeaddress"
+    ],
+    "2": [
+      "package",
+      "package_author",
+      "package_description",
+      "package_keywords",
+      "package_license",
+      "package_main",
+      "package_name",
+      "package_type",
+      "package_version",
+      "ref_cheerio",
+      "ref_marked"
+    ],
+    "3": [
+      "ref_fs",
+      "ref_path",
+      "utils_csvexporter",
+      "utils_logger",
+      "utils_logger_formattimestamp",
+      "utils_logger_levels",
+      "utils_logger_log",
+      "utils_logger_log_file",
+      "utils_logger_logger",
+      "utils_retry",
+      "utils_retry_retrywithbackoff"
+    ],
+    "4": [
+      "config",
+      "config_bank_reo_tiers",
+      "config_cache_dir",
+      "config_ct_judicial_base_url",
+      "config_logs_dir",
+      "config_request_config",
+      "config_towns",
+      "scrapers_rentalcomps"
+    ],
+    "5": [
+      "package_scripts",
+      "package_scripts_scrape_all",
+      "package_scripts_scrape_banks",
+      "package_scripts_scrape_judicial",
+      "package_scripts_start"
+    ],
+    "6": [
+      "package_dependencies",
+      "package_dependencies_axios",
+      "package_dependencies_cheerio",
+      "package_dependencies_marked"
+    ],
+    "7": [
+      "package_engines",
+      "package_engines_node"
+    ]
+  },
+  "cohesion": {
+    "0": 0.28205128205128205,
+    "1": 0.2948717948717949,
+    "2": 0.18181818181818182,
+    "3": 0.2727272727272727,
+    "4": 0.32142857142857145,
+    "5": 0.4,
+    "6": 0.5,
+    "7": 1.0
+  },
+  "gods": [
+    {
+      "id": "utils_logger_logger",
+      "label": "logger",
+      "degree": 9
+    },
+    {
+      "id": "index_main",
+      "label": "main()",
+      "degree": 8
+    },
+    {
+      "id": "utils_addressnormalize_createaddresskey",
+      "label": "createAddressKey()",
+      "degree": 6
+    },
+    {
+      "id": "package_scripts",
+      "label": "scripts",
+      "degree": 5
+    },
+    {
+      "id": "analysis_investmentscore_calculatedealmetrics",
+      "label": "calculateDealMetrics()",
+      "degree": 4
+    },
+    {
+      "id": "utils_csvexporter_exporttocsv",
+      "label": "exportToCSV()",
+      "degree": 4
+    },
+    {
+      "id": "utils_dedupe_consolidateproperties",
+      "label": "consolidateProperties()",
+      "degree": 4
+    },
+    {
+      "id": "scrapers_bankreo_fetchbankreo",
+      "label": "fetchBankREO()",
+      "degree": 4
+    },
+    {
+      "id": "scrapers_bankreo_scrapewithfallback",
+      "label": "scrapeWithFallback()",
+      "degree": 4
+    },
+    {
+      "id": "scrapers_judicial_fetchforeclosurelist",
+      "label": "fetchForeclosureList()",
+      "degree": 4
+    }
+  ],
+  "surprises": [
+    {
+      "source": "main()",
+      "target": "scrapeWithFallback()",
+      "source_files": [
+        "index.js",
+        "scrapers/bankReo.js"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "connects across different repos/directories; bridges separate communities"
+    },
+    {
+      "source": "main()",
+      "target": "scrapeAllTowns()",
+      "source_files": [
+        "index.js",
+        "scrapers/judicial.js"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "connects across different repos/directories; bridges separate communities"
+    },
+    {
+      "source": "main()",
+      "target": "calculateDealMetrics()",
+      "source_files": [
+        "index.js",
+        "analysis/investmentScore.js"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "connects across different repos/directories"
+    },
+    {
+      "source": "main()",
+      "target": "rankDeals()",
+      "source_files": [
+        "index.js",
+        "analysis/investmentScore.js"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "connects across different repos/directories"
+    },
+    {
+      "source": "main()",
+      "target": "getRentalComps()",
+      "source_files": [
+        "index.js",
+        "scrapers/rentalComps.js"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "connects across different repos/directories"
+    }
+  ],
+  "questions": [
+    {
+      "type": "bridge_node",
+      "question": "Why does `axios` connect `Foreclosure Data Scraper` to `Package Metadata`?",
+      "why": "High betweenness centrality (0.451) - this node is a cross-community bridge."
+    },
+    {
+      "type": "isolated_nodes",
+      "question": "What connects `author`, `description`, `keywords` to the rest of the system?",
+      "why": "22 weakly-connected nodes found - possible documentation gaps or missing edges."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `scripts` connect `Build Scripts` to `Package Metadata`?",
+      "why": "High betweenness centrality (0.118) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `dependencies` connect `External Dependencies` to `Package Metadata`?",
+      "why": "High betweenness centrality (0.090) - this node is a cross-community bridge."
+    }
+  ]
+}
